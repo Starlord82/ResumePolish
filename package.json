@@ -1,0 +1,44 @@
+{
+  "name": "resume-polish",
+  "version": "1.0.0",
+  "description": "Internal tool to improve student resumes using local AI (Ollama)",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "build:vite": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "docxtemplater": "^3.48.0",
+    "fs-extra": "^11.2.0",
+    "mammoth": "^1.8.0",
+    "pdfjs-dist": "^3.11.174",
+    "pizzip": "^3.1.7"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "electron": "^30.1.0",
+    "electron-builder": "^24.13.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3",
+    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "@vitejs/plugin-react": "^4.3.1"
+  },
+  "build": {
+    "appId": "com.resumepolish.app",
+    "productName": "ResumePolish",
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ]
+  }
+}
