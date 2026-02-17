@@ -133,6 +133,24 @@ textarea {
 .preview-notes h3 { color: #b7791f; }
 .preview-notes li { font-style: italic; color: #975a16; }
 
+/* Inline editing in preview */
+.edit-inline {
+  width: 100%; border: 1px solid transparent; border-radius: 3px;
+  background: transparent; font: inherit; color: inherit; padding: 1px 4px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.edit-inline:hover { border-color: #e2e8f0; background: #fff; }
+.edit-inline:focus { border-color: #3182ce; background: #fff; outline: none; }
+.preview h3 .edit-inline { font-size: 15px; font-weight: 600; color: #2d3748; }
+.edit-textarea {
+  width: 100%; border: 1px solid transparent; border-radius: 4px;
+  background: transparent; font: inherit; font-size: 13px; color: inherit;
+  padding: 4px 6px; resize: vertical; margin-bottom: 10px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.edit-textarea:hover { border-color: #e2e8f0; background: #fff; }
+.edit-textarea:focus { border-color: #3182ce; background: #fff; outline: none; }
+
 /* Modal */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5);
@@ -163,3 +181,21 @@ textarea {
 .actions-row {
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
 }
+
+/* Style Gallery */
+.style-gallery {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-top: 8px;
+}
+.style-card {
+  border: 2px solid #e2e8f0; border-radius: 8px; padding: 8px;
+  cursor: pointer; text-align: center; transition: border-color 0.15s, box-shadow 0.15s;
+  background: #fff;
+}
+.style-card:hover { border-color: #a0aec0; }
+.style-card.selected { border-color: #3182ce; box-shadow: 0 0 0 2px rgba(49,130,206,0.25); }
+.style-card img {
+  width: 100%; height: auto; border-radius: 4px; margin-bottom: 6px;
+  border: 1px solid #edf2f7; background: #f7fafc;
+}
+.style-card-name { font-size: 13px; font-weight: 500; color: #4a5568; }

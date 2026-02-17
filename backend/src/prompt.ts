@@ -41,8 +41,18 @@ export const SYSTEM_PROMPT =
   '  "military_service": { "role": "string", "dates": "string", "details": "string (optional)" },\n' +
   '  "languages": ["string"],\n' +
   '  "skills": ["string"],\n' +
-  '  "notes": ["string"]\n' +
+  '  "notes": ["string"],\n' +
+  '  "education_heading": "string (section title, e.g. השכלה וקורסים / Education & Courses)",\n' +
+  '  "experience_heading": "string (section title, e.g. ניסיון תעסוקתי / Work Experience)",\n' +
+  '  "projects_heading": "string (section title, e.g. פרויקטים / Projects)",\n' +
+  '  "military_heading": "string (section title, e.g. שירות צבאי / Military Service)",\n' +
+  '  "languages_heading": "string (section title, e.g. שפות / Languages)",\n' +
+  '  "skills_heading": "string (section title, e.g. כישורים / Skills)"\n' +
   '}\n\n' +
+  "Section headings rules:\n" +
+  "- Always include the *_heading fields with appropriate section titles in the output language.\n" +
+  "- Use professional, standard section titles appropriate for the industry and language.\n" +
+  "- These headings will be used as-is in the final document.\n\n" +
   "Notes rules:\n" +
   "- The \"notes\" array is for YOUR recommendations, suggestions, and comments to the student — NOT part of the resume itself.\n" +
   "- Use notes to: suggest missing metrics to ask the student for, recommend adding certifications/skills, flag weak areas, suggest improvements the student should make manually.\n" +

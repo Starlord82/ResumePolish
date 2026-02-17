@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import fs from 'fs';
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
-import { buildDefaultTemplateBuffer } from '../defaultTemplate';
+import { loadStyleTemplate } from '../loadStyleTemplate';
 
 function stripBoldMarkers(obj: any): any {
   if (typeof obj === 'string') return obj.replace(/\*\*/g, '');
@@ -27,11 +27,12 @@ export async function generateDocxHandler(req: Request, res: Response) {
   const templatePath = req.file?.path;
   const lang = req.body.lang || 'en';
   const rtl = lang === 'he';
+  const style = req.body.style;
 
   try {
     const content = templatePath
       ? fs.readFileSync(templatePath, 'binary')
-      : buildDefaultTemplateBuffer(rtl);
+      : loadStyleTemplate(style, rtl);
     const zip = new PizZip(content);
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,

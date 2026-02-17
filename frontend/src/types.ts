@@ -30,4 +30,11 @@ export interface ResumeData {
   languages?: string[]
   skills: string[]
   notes: string[]
+  // Dynamic section headings (from Gemini)
+  education_heading?: string
+  experience_heading?: string
+  projects_heading?: string
+  military_heading?: string
+  languages_heading?: string
+  skills_heading?: string
 }

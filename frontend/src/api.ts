@@ -1,7 +1,17 @@
 const BASE = '/api';
 
+export interface StyleInfo {
+  id: string;
+  name: string;
+}
+
 export async function checkHealth(): Promise<{ ok: boolean; model: string | null }> {
   const res = await fetch(`${BASE}/health`);
+  return res.json();
+}
+
+export async function fetchStyles(): Promise<StyleInfo[]> {
+  const res = await fetch(`${BASE}/styles`);
   return res.json();
 }
 
@@ -32,18 +42,20 @@ export async function improveResume(payload: {
   }
   const data = await res.json();
   if (!res.ok) {
-    // Return error data (including raw_output) instead of throwing,
-    // so the caller can display the raw AI output for debugging
     return { error: data.error || `Server error: ${res.status}`, raw_output: data.raw_output };
   }
   return data;
 }
 
-export async function downloadDocx(improvedJson: any, templateFile?: File | null, lang?: 'he' | 'en'): Promise<Blob> {
+export async function downloadDocx(
+  improvedJson: any,
+  opts: { templateFile?: File | null; lang?: 'he' | 'en'; style?: string }
+): Promise<Blob> {
   const form = new FormData();
-  if (templateFile) form.append('template_file', templateFile);
+  if (opts.templateFile) form.append('template_file', opts.templateFile);
   form.append('improved_json', JSON.stringify(improvedJson));
-  if (lang) form.append('lang', lang);
+  if (opts.lang) form.append('lang', opts.lang);
+  if (opts.style) form.append('style', opts.style);
   const res = await fetch(`${BASE}/generate-docx`, { method: 'POST', body: form });
   if (!res.ok) {
     const err = await res.json();
@@ -52,11 +64,15 @@ export async function downloadDocx(improvedJson: any, templateFile?: File | null
   return res.blob();
 }
 
-export async function downloadPdf(improvedJson: any, templateFile?: File | null, lang?: 'he' | 'en'): Promise<Blob> {
+export async function downloadPdf(
+  improvedJson: any,
+  opts: { templateFile?: File | null; lang?: 'he' | 'en'; style?: string }
+): Promise<Blob> {
   const form = new FormData();
-  if (templateFile) form.append('template_file', templateFile);
+  if (opts.templateFile) form.append('template_file', opts.templateFile);
   form.append('improved_json', JSON.stringify(improvedJson));
-  if (lang) form.append('lang', lang);
+  if (opts.lang) form.append('lang', opts.lang);
+  if (opts.style) form.append('style', opts.style);
   const res = await fetch(`${BASE}/generate-pdf`, { method: 'POST', body: form });
   if (!res.ok) {
     const err = await res.json();

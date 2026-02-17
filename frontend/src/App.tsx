@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, Component } from 'react'
 import type { ResumeData } from './types'
-import { checkHealth, extractResume, improveResume, downloadDocx, downloadPdf } from './api'
-import TemplateHelpModal from './components/TemplateHelpModal'
+import type { StyleInfo } from './api'
+import { checkHealth, fetchStyles, extractResume, improveResume, downloadDocx, downloadPdf } from './api'
 import Preview from './components/Preview'
 
 function Toast({ message, type }: { message: string; type: 'success' | 'error' }) {
@@ -37,10 +37,10 @@ export default function App() {
   const [outputLang, setOutputLang] = useState<'he' | 'en'>('he')
   const [intensity, setIntensity] = useState('balanced')
 
-  // Template
+  // Template & styles
   const [templateFile, setTemplateFile] = useState<File | null>(null)
-  const [showHelp, setShowHelp] = useState(false)
-  const templateInputRef = useRef<HTMLInputElement>(null)
+  const [styles, setStyles] = useState<StyleInfo[]>([])
+  const [selectedStyle, setSelectedStyle] = useState('default')
 
   // AI
   const [improving, setImproving] = useState(false)
@@ -58,9 +58,10 @@ export default function App() {
     setTimeout(() => setToast(null), 4000)
   }
 
-  // Check health on mount
+  // Check health and fetch styles on mount
   useEffect(() => {
     doHealthCheck()
+    fetchStyles().then(setStyles).catch(() => {})
   }, [])
 
   const doHealthCheck = async () => {
@@ -131,9 +132,14 @@ export default function App() {
     if (!aiResult) return
     setDownloading(format)
     try {
+      const opts = {
+        templateFile: templateFile || undefined,
+        lang: outputLang,
+        style: templateFile ? undefined : selectedStyle,
+      }
       const blob = format === 'docx'
-        ? await downloadDocx(aiResult, templateFile, outputLang)
-        : await downloadPdf(aiResult, templateFile, outputLang)
+        ? await downloadDocx(aiResult, opts)
+        : await downloadPdf(aiResult, opts)
 
       const name = aiResult.name?.replace(/\s+/g, '_') || 'Resume'
       const url = URL.createObjectURL(blob)
@@ -148,6 +154,8 @@ export default function App() {
     }
     setDownloading(null)
   }
+
+  const useOriginalTemplate = !!templateFile
 
   return (
     <div className="app">
@@ -277,28 +285,34 @@ export default function App() {
         </div>
       )}
 
-      {/* D) Template + E) Downloads */}
+      {/* D) Style & Download */}
       <div className="card">
-        <h2>Word Template & Download</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <input
-            ref={templateInputRef}
-            type="file"
-            accept=".docx"
-            style={{ display: 'none' }}
-            onChange={e => {
-              const f = e.target.files?.[0]
-              if (f) setTemplateFile(f)
-            }}
-          />
-          <button className="btn btn-secondary" onClick={() => templateInputRef.current?.click()}>
-            Upload Word Template (.docx)
-          </button>
-          {templateFile && <span className="file-label">{templateFile.name}</span>}
-          <button className="btn btn-link" onClick={() => setShowHelp(true)}>How to create a template</button>
-        </div>
+        <h2>Resume Style & Download</h2>
 
-        <div className="actions-row">
+        {useOriginalTemplate ? (
+          <div className="info-box" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>Using uploaded resume template: <strong>{templateFile.name}</strong></span>
+            <button className="btn-link" onClick={() => setTemplateFile(null)}>Use a style instead</button>
+          </div>
+        ) : (
+          <>
+            <label>Choose a resume style</label>
+            <div className="style-gallery">
+              {styles.map(s => (
+                <div
+                  key={s.id}
+                  className={`style-card${selectedStyle === s.id ? ' selected' : ''}`}
+                  onClick={() => setSelectedStyle(s.id)}
+                >
+                  <img src={`/style-thumbnails/${s.id}.svg`} alt={s.name} />
+                  <span className="style-card-name">{s.name}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <div className="actions-row mt-12">
           <button
             className="btn btn-success"
             onClick={() => handleDownload('docx')}
@@ -316,11 +330,8 @@ export default function App() {
         </div>
 
         {!aiResult && <p style={{ fontSize: 13, color: '#a0aec0', marginTop: 8 }}>Run "Improve with AI" first.</p>}
-        {aiResult && !templateFile && <p style={{ fontSize: 13, color: '#a0aec0', marginTop: 8 }}>A default layout will be used. Upload a template for custom formatting.</p>}
-        {aiResult && templateFile && resumeFileName && templateFile.name === resumeFileName && <p style={{ fontSize: 13, color: '#718096', marginTop: 8 }}>Using uploaded resume as template (original formatting preserved).</p>}
       </div>
 
-      {showHelp && <TemplateHelpModal onClose={() => setShowHelp(false)} />}
       {toast && <Toast message={toast.message} type={toast.type} />}
     </div>
   )

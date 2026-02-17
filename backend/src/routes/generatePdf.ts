@@ -4,7 +4,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
-import { buildDefaultTemplateBuffer } from '../defaultTemplate';
+import { loadStyleTemplate } from '../loadStyleTemplate';
 
 function stripBoldMarkers(obj: any): any {
   if (typeof obj === 'string') return obj.replace(/\*\*/g, '');
@@ -29,6 +29,7 @@ export async function generatePdfHandler(req: Request, res: Response) {
   const templatePath = req.file?.path;
   const lang = req.body.lang || 'en';
   const rtl = lang === 'he';
+  const style = req.body.style;
   const tmpDir = '/tmp/pdf-gen-' + Date.now();
 
   try {
@@ -37,7 +38,7 @@ export async function generatePdfHandler(req: Request, res: Response) {
     // Generate DOCX
     const content = templatePath
       ? fs.readFileSync(templatePath, 'binary')
-      : buildDefaultTemplateBuffer(rtl);
+      : loadStyleTemplate(style, rtl);
     const zip = new PizZip(content);
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,

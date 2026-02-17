@@ -6,6 +6,7 @@ import { extractHandler } from './routes/extract';
 import { improveHandler } from './routes/improve';
 import { generateDocxHandler } from './routes/generateDocx';
 import { generatePdfHandler } from './routes/generatePdf';
+import { getStylesHandler } from './routes/styles';
 
 const app = express();
 const PORT = 3001;
@@ -17,6 +18,7 @@ const upload = multer({ dest: '/tmp/uploads/', limits: { fileSize: 20 * 1024 * 1
 
 // Routes
 app.get('/api/health', healthHandler);
+app.get('/api/styles', getStylesHandler);
 app.post('/api/extract', upload.single('resume_file'), extractHandler);
 app.post('/api/improve', improveHandler);
 app.post('/api/generate-docx', upload.single('template_file'), generateDocxHandler);
