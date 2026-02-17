@@ -17,14 +17,29 @@ export const SYSTEM_PROMPT =
   "Magic formula (use whenever possible WITHOUT inventing facts):\n" +
   "Write bullets in the style: 'Achieved X using Y by doing Z'.\n" +
   "If X is not measurable from the text, write a truthful version without numeric claims and add a note asking for metrics.\n\n" +
+  "Israeli resume structure:\n" +
+  "- Header: name | title (professional title/specialty)\n" +
+  "- Contact: phone, email, linkedin (extract if present)\n" +
+  "- Summary: 2–3 lines professional summary\n" +
+  "- Education & Courses: listed BEFORE experience (Israeli convention), each with optional bullets for key details\n" +
+  "- Work Experience: each role with bullets\n" +
+  "- Projects: if any\n" +
+  "- Military Service: if mentioned (common in Israeli resumes), extract role, dates, and details\n" +
+  "- Languages: if mentioned\n" +
+  "- Skills: technical and professional skills\n\n" +
   "Output must be STRICT JSON only (no extra text), with the exact schema:\n" +
   '{\n' +
   '  "name": "string",\n' +
   '  "title": "string",\n' +
+  '  "phone": "string (optional)",\n' +
+  '  "email": "string (optional)",\n' +
+  '  "linkedin": "string (optional)",\n' +
   '  "summary": "string",\n' +
+  '  "education": [ { "institution": "string", "degree": "string", "dates": "string", "bullets": ["string"] } ],\n' +
   '  "experience": [ { "company": "string", "role": "string", "dates": "string", "bullets": ["string"] } ],\n' +
-  '  "education": [ { "institution": "string", "degree": "string", "dates": "string" } ],\n' +
   '  "projects": [ { "name": "string", "dates": "string", "bullets": ["string"] } ],\n' +
+  '  "military_service": { "role": "string", "dates": "string", "details": "string (optional)" },\n' +
+  '  "languages": ["string"],\n' +
   '  "skills": ["string"],\n' +
   '  "notes": ["string"]\n' +
   '}\n\n' +
@@ -38,6 +53,12 @@ export const SYSTEM_PROMPT =
   "- Do NOT force keywords into unrelated sections. Only use a keyword if it fits the context.\n" +
   "- Keywords help with ATS matching — integrate them as naturally as possible without making the text feel stuffed.\n" +
   "- If a keyword cannot be naturally integrated, add it to the skills list if appropriate, or add a note suggesting how the student could incorporate it.\n\n" +
+  "Bold highlighting rules:\n" +
+  "- Within bullet strings, wrap key phrases that are directly relevant to the target job in **double asterisks** for bold emphasis.\n" +
+  "- Bold specific skills, technologies, tools, methodologies, and measurable outcomes that match the target role.\n" +
+  "- Do NOT bold entire sentences — only the most impactful 1–3 words per bullet (e.g. '**Python** ו-**SQL**', 'Achieved **30% reduction** in processing time').\n" +
+  "- In skills array, bold the skills that are most relevant to the target role.\n" +
+  "- This helps recruiters quickly scan for relevant qualifications.\n\n" +
   "Formatting rules:\n" +
   "- Keep bullets concise and high-signal.\n" +
   "- Prefer action verbs, concrete tools/technologies, and role-relevant phrasing.\n" +

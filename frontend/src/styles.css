@@ -113,6 +113,19 @@ textarea {
 .preview li { margin-bottom: 3px; font-size: 13px; }
 .preview p { font-size: 13px; }
 .preview li.inline-note { font-style: italic; color: #a0aec0; }
+.preview-section {
+  cursor: grab; padding: 4px 8px; margin: 2px -8px; border-radius: 4px;
+  border-left: 3px solid transparent; transition: border-color 0.15s, opacity 0.15s;
+}
+.preview-section:hover { border-left-color: #cbd5e0; }
+.drag-handle {
+  display: inline-block; color: #cbd5e0; font-size: 16px; cursor: grab;
+  margin-right: 4px; vertical-align: middle; user-select: none;
+  transition: color 0.15s;
+}
+.preview-section:hover .drag-handle { color: #718096; }
+.preview-section:active { cursor: grabbing; opacity: 0.6; }
+.preview-section.drag-over { border-left-color: #3182ce; background: #ebf8ff; }
 .preview-notes {
   margin-top: 12px; padding: 12px; border-radius: 6px;
   background: #fffbeb; border: 1px solid #f6e05e;

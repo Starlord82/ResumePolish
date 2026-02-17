@@ -39,10 +39,11 @@ export async function improveResume(payload: {
   return data;
 }
 
-export async function downloadDocx(improvedJson: any, templateFile?: File | null): Promise<Blob> {
+export async function downloadDocx(improvedJson: any, templateFile?: File | null, lang?: 'he' | 'en'): Promise<Blob> {
   const form = new FormData();
   if (templateFile) form.append('template_file', templateFile);
   form.append('improved_json', JSON.stringify(improvedJson));
+  if (lang) form.append('lang', lang);
   const res = await fetch(`${BASE}/generate-docx`, { method: 'POST', body: form });
   if (!res.ok) {
     const err = await res.json();
@@ -51,10 +52,11 @@ export async function downloadDocx(improvedJson: any, templateFile?: File | null
   return res.blob();
 }
 
-export async function downloadPdf(improvedJson: any, templateFile?: File | null): Promise<Blob> {
+export async function downloadPdf(improvedJson: any, templateFile?: File | null, lang?: 'he' | 'en'): Promise<Blob> {
   const form = new FormData();
   if (templateFile) form.append('template_file', templateFile);
   form.append('improved_json', JSON.stringify(improvedJson));
+  if (lang) form.append('lang', lang);
   const res = await fetch(`${BASE}/generate-pdf`, { method: 'POST', body: form });
   if (!res.ok) {
     const err = await res.json();

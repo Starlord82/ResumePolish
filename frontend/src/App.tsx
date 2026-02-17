@@ -85,6 +85,9 @@ export default function App() {
         showToast('This PDF may be scanned/image-based. Please upload a DOCX or paste the text.', 'error')
       }
       setResumeText(result.extracted_text)
+      if (file.name.toLowerCase().endsWith('.docx')) {
+        setTemplateFile(file)
+      }
     } catch (err: any) {
       showToast(`Extraction failed: ${err.message}`, 'error')
     }
@@ -129,8 +132,8 @@ export default function App() {
     setDownloading(format)
     try {
       const blob = format === 'docx'
-        ? await downloadDocx(aiResult, templateFile)
-        : await downloadPdf(aiResult, templateFile)
+        ? await downloadDocx(aiResult, templateFile, outputLang)
+        : await downloadPdf(aiResult, templateFile, outputLang)
 
       const name = aiResult.name?.replace(/\s+/g, '_') || 'Resume'
       const url = URL.createObjectURL(blob)
@@ -314,6 +317,7 @@ export default function App() {
 
         {!aiResult && <p style={{ fontSize: 13, color: '#a0aec0', marginTop: 8 }}>Run "Improve with AI" first.</p>}
         {aiResult && !templateFile && <p style={{ fontSize: 13, color: '#a0aec0', marginTop: 8 }}>A default layout will be used. Upload a template for custom formatting.</p>}
+        {aiResult && templateFile && resumeFileName && templateFile.name === resumeFileName && <p style={{ fontSize: 13, color: '#718096', marginTop: 8 }}>Using uploaded resume as template (original formatting preserved).</p>}
       </div>
 
       {showHelp && <TemplateHelpModal onClose={() => setShowHelp(false)} />}
