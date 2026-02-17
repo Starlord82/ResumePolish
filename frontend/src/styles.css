@@ -112,6 +112,13 @@ textarea {
 .preview ul { padding-left: 20px; }
 .preview li { margin-bottom: 3px; font-size: 13px; }
 .preview p { font-size: 13px; }
+.preview li.inline-note { font-style: italic; color: #a0aec0; }
+.preview-notes {
+  margin-top: 12px; padding: 12px; border-radius: 6px;
+  background: #fffbeb; border: 1px solid #f6e05e;
+}
+.preview-notes h3 { color: #b7791f; }
+.preview-notes li { font-style: italic; color: #975a16; }
 
 /* Modal */
 .modal-overlay {

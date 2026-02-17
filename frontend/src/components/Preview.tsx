@@ -1,5 +1,17 @@
 import type { ResumeData } from '../types'
 
+function isNoteBullet(text: string): boolean {
+  const lower = text.trimStart().toLowerCase()
+  return lower.startsWith('הערה:') || lower.startsWith('הערה -') || lower.startsWith('note:') || lower.startsWith('note -')
+}
+
+function Bullet({ text }: { text: string }) {
+  if (isNoteBullet(text)) {
+    return <li className="inline-note">{text}</li>
+  }
+  return <li>{text}</li>
+}
+
 export default function Preview({ data, dir }: { data: ResumeData; dir?: 'rtl' | 'ltr' }) {
   const experience = Array.isArray(data.experience) ? data.experience.filter(Boolean) : []
   const projects = Array.isArray(data.projects) ? data.projects.filter(Boolean) : []
@@ -20,7 +32,7 @@ export default function Preview({ data, dir }: { data: ResumeData; dir?: 'rtl' |
             <div key={i} style={{ marginBottom: 8 }}>
               <strong>{exp.role || ''}</strong> — {exp.company || ''} ({exp.dates || ''})
               <ul>
-                {Array.isArray(exp.bullets) && exp.bullets.map((b, j) => <li key={j}>{b}</li>)}
+                {Array.isArray(exp.bullets) && exp.bullets.map((b, j) => <Bullet key={j} text={b} />)}
               </ul>
             </div>
           ))}
@@ -34,7 +46,7 @@ export default function Preview({ data, dir }: { data: ResumeData; dir?: 'rtl' |
             <div key={i} style={{ marginBottom: 8 }}>
               <strong>{proj.name || ''}</strong> ({proj.dates || ''})
               <ul>
-                {Array.isArray(proj.bullets) && proj.bullets.map((b, j) => <li key={j}>{b}</li>)}
+                {Array.isArray(proj.bullets) && proj.bullets.map((b, j) => <Bullet key={j} text={b} />)}
               </ul>
             </div>
           ))}
@@ -60,12 +72,12 @@ export default function Preview({ data, dir }: { data: ResumeData; dir?: 'rtl' |
       )}
 
       {notes.length > 0 && (
-        <>
-          <h3 style={{ marginTop: 10 }}>Notes</h3>
+        <div className="preview-notes">
+          <h3>AI Notes & Suggestions</h3>
           <ul>
             {notes.map((n, i) => <li key={i}>{n}</li>)}
           </ul>
-        </>
+        </div>
       )}
     </div>
   )

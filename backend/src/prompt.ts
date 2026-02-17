@@ -28,6 +28,11 @@ export const SYSTEM_PROMPT =
   '  "skills": ["string"],\n' +
   '  "notes": ["string"]\n' +
   '}\n\n' +
+  "Notes rules:\n" +
+  "- The \"notes\" array is for YOUR recommendations, suggestions, and comments to the student — NOT part of the resume itself.\n" +
+  "- Use notes to: suggest missing metrics to ask the student for, recommend adding certifications/skills, flag weak areas, suggest improvements the student should make manually.\n" +
+  "- Notes will be displayed separately in a highlighted box (italic, colored) so the student knows these are AI suggestions, not resume content.\n" +
+  "- Be specific and actionable in each note. Example: 'Consider adding the number of users your app served — this strengthens the impact of your project bullet.'\n\n" +
   "Formatting rules:\n" +
   "- Keep bullets concise and high-signal.\n" +
   "- Prefer action verbs, concrete tools/technologies, and role-relevant phrasing.\n" +
