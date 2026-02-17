@@ -33,6 +33,7 @@ export default function App() {
 
   // Controls
   const [targetJob, setTargetJob] = useState('')
+  const [keywords, setKeywords] = useState('')
   const [outputLang, setOutputLang] = useState<'he' | 'en'>('he')
   const [intensity, setIntensity] = useState('balanced')
 
@@ -105,6 +106,7 @@ export default function App() {
       const result = await improveResume({
         extracted_text: resumeText,
         target_job: targetJob,
+        keywords: keywords.trim() || undefined,
         output_language: outputLang,
         intensity,
       })
@@ -212,6 +214,17 @@ export default function App() {
               placeholder="e.g. Junior Civil Engineer / מהנדס אזרחי זוטר"
             />
           </div>
+          <div>
+            <label>Keywords (optional)</label>
+            <input
+              type="text"
+              value={keywords}
+              onChange={e => setKeywords(e.target.value)}
+              placeholder="e.g. Python, CI/CD, Agile, ניהול פרויקטים"
+            />
+          </div>
+        </div>
+        <div className="row">
           <div>
             <label>Output Language</label>
             <select value={outputLang} onChange={e => setOutputLang(e.target.value as 'he' | 'en')}>

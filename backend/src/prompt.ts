@@ -33,6 +33,11 @@ export const SYSTEM_PROMPT =
   "- Use notes to: suggest missing metrics to ask the student for, recommend adding certifications/skills, flag weak areas, suggest improvements the student should make manually.\n" +
   "- Notes will be displayed separately in a highlighted box (italic, colored) so the student knows these are AI suggestions, not resume content.\n" +
   "- Be specific and actionable in each note. Example: 'Consider adding the number of users your app served — this strengthens the impact of your project bullet.'\n\n" +
+  "Keywords rules:\n" +
+  "- If the user provides keywords, weave them naturally into the resume (summary, bullets, skills) where they are relevant and truthful.\n" +
+  "- Do NOT force keywords into unrelated sections. Only use a keyword if it fits the context.\n" +
+  "- Keywords help with ATS matching — integrate them as naturally as possible without making the text feel stuffed.\n" +
+  "- If a keyword cannot be naturally integrated, add it to the skills list if appropriate, or add a note suggesting how the student could incorporate it.\n\n" +
   "Formatting rules:\n" +
   "- Keep bullets concise and high-signal.\n" +
   "- Prefer action verbs, concrete tools/technologies, and role-relevant phrasing.\n" +
@@ -45,12 +50,15 @@ export function buildUserPrompt(
   extractedText: string,
   targetJob: string,
   outputLanguage: 'he' | 'en',
-  intensity: 'conservative' | 'balanced' | 'aggressive'
+  intensity: 'conservative' | 'balanced' | 'aggressive',
+  keywords: string = ''
 ): string {
   const langLabel = outputLanguage === 'he' ? 'Hebrew' : 'English';
+  const keywordsLine = keywords ? `Keywords to weave in: ${keywords}\n` : '';
   return (
     `Language output: ${langLabel} (${outputLanguage})\n` +
     `Target role (can be Hebrew or English): ${targetJob}\n` +
+    keywordsLine +
     `Rewrite intensity: ${intensity}\n\n` +
     "Task:\n" +
     "1) Extract identity fields if present; if missing keep empty and add a note.\n" +

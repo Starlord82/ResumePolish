@@ -16,6 +16,7 @@ export async function extractResume(file: File): Promise<{ extracted_text: strin
 export async function improveResume(payload: {
   extracted_text: string;
   target_job: string;
+  keywords?: string;
   output_language: 'he' | 'en';
   intensity: string;
 }): Promise<{ improved?: any; error?: string; raw_output?: string }> {

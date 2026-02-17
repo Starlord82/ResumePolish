@@ -24,7 +24,7 @@ function extractJson(raw: string): any | null {
 }
 
 export async function improveHandler(req: Request, res: Response) {
-  const { extracted_text, target_job, output_language, intensity } = req.body;
+  const { extracted_text, target_job, keywords, output_language, intensity } = req.body;
 
   if (!extracted_text) {
     res.status(400).json({ error: 'extracted_text is required' });
@@ -42,7 +42,7 @@ export async function improveHandler(req: Request, res: Response) {
     : 'balanced';
   const temperature = TEMPERATURE_MAP[intens] ?? 0.5;
 
-  const userPrompt = buildUserPrompt(extracted_text, target_job || '', lang, intens);
+  const userPrompt = buildUserPrompt(extracted_text, target_job || '', lang, intens, keywords || '');
 
   try {
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
