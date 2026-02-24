@@ -27,7 +27,7 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: frontend/src-tauri -> target
+          workspaces: frontend/src-tauri
 
       - name: Install frontend dependencies
         run: npm ci
@@ -37,7 +37,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CARGO_TARGET_DIR: ${{ github.workspace }}/target
         with:
           projectPath: frontend
           tagName: ${{ github.ref_name }}
