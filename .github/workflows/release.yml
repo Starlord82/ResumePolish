@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: frontend/src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_TARGET_DIR: ${{ github.workspace }}/target
+        with:
+          projectPath: frontend
+          tagName: ${{ github.ref_name }}
+          releaseName: ResumePolish ${{ github.ref_name }}
+          releaseBody: |
+            ## How to Install
+
+            1. Download **`ResumePolish_x64-setup.exe`** below
+            2. Double-click to run the installer
+            3. Launch **ResumePolish** from the Start Menu
+            4. Enter your free Gemini API key — instructions are shown inside the app
+
+            > **Note:** Windows may show a SmartScreen warning ("unrecognized app") — click **More info → Run anyway**. This is normal for unsigned apps.
+
+            ## Requirements
+            - Windows 10 or 11 (64-bit)
+            - Internet connection for the first run (to call Gemini AI)
+          releaseDraft: false
+          prerelease: false
