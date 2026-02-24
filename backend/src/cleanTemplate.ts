@@ -73,11 +73,20 @@ function extractBackgroundShape(xml: string): string {
   return (start >= 0 && end > start) ? xml.substring(start, end) : '';
 }
 
+function extractSectPr(xml: string): string {
+  const match = xml.match(/<w:sectPr[\s\S]*?<\/w:sectPr>/);
+  return match ? match[0] : '<w:sectPr><w:pgSz w:h="16838" w:w="11906" w:orient="portrait"/><w:pgMar w:bottom="720" w:top="720" w:left="720" w:right="720" w:header="708" w:footer="708"/></w:sectPr>';
+}
+
 function main() {
   const buf = fs.readFileSync(ORIGINAL_PATH);
   const zip = new PizZip(buf);
   const originalXml = zip.file('word/document.xml')!.asText();
+
+  // Extract the full-width blue background shape (positioned behind text, page-relative)
   const bgShape = extractBackgroundShape(originalXml);
+  // Extract section properties (page size, margins)
+  const sectPr = extractSectPr(originalXml);
 
   // Style shortcuts
   const rprName = rpr({ bold: true, color: 'ffffff', size: 36, rtl: true });
@@ -96,17 +105,18 @@ function main() {
   const pprBullet = ppr({ bidi: true, after: 40, indent: true, rprDefault: rprBodySm });
 
   const body =
-    // Header paragraph: shape (behind doc) + name | title on same line
+    // First paragraph: background shape (behind text) + name | title
     `<w:p>${pprHeader}` +
-    // Shape run: no text properties, just the drawing
-    (bgShape ? `<w:r><w:rPr/>${bgShape}</w:r>` : '') +
-    // Name
+    // Shape run — the shape is an anchor positioned behind text at page level
+    // It must be inside a <w:r> with its own rPr (matching the first text run)
+    (bgShape ? `<w:r>${rprName}${bgShape}</w:r>` : '') +
+    // Name text
     `<w:r>${rprName}<w:t xml:space="preserve">{name}</w:t></w:r>` +
     // Separator + Title
     `<w:r>${rprTitle}<w:t xml:space="preserve"> | {title}</w:t></w:r>` +
     `</w:p>` +
 
-    // Contact line (still in blue header area)
+    // Contact line (over the blue background shape)
     p(pprHeader, rprContact, '{phone} | {email} | {linkedin}') +
 
     // Spacer
@@ -164,7 +174,7 @@ function main() {
   const newXml =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<w:document ${NS}>` +
-    `<w:body>${body}</w:body>` +
+    `<w:body>${body}${sectPr}</w:body>` +
     `</w:document>`;
 
   zip.file('word/document.xml', newXml);
