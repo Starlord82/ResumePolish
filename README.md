@@ -1,120 +1,109 @@
 # ResumePolish
 
-Internal office tool that improves student resumes using **Google Gemini AI** and generates polished DOCX/PDF files from a Word template.
+Desktop app that improves student resumes using **Google Gemini AI** and generates polished DOCX/PDF files. Runs entirely on your machine — no server, no Docker, no browser needed.
 
-## Quick Start
+## Installation
 
-1. Get a free Gemini API key at [Google AI Studio](https://aistudio.google.com/apikey)
+1. Download `ResumePolish_x64-setup.exe` from [Releases](https://github.com/Starlord82/ResumePolish/releases)
+2. Run the installer — it creates a Start Menu shortcut and an uninstaller
+3. Launch **ResumePolish** from the Start Menu
 
-2. Create a `.env` file in the project root:
-   ```
-   GEMINI_API_KEY=your_api_key_here
-   ```
+**Requirements:** Windows 10/11 (WebView2 is pre-installed on Windows 11; Windows 10 installs it automatically if missing)
 
-3. Start the app:
-   ```bash
-   docker compose up --build
-   ```
+## First Run — API Key Setup
 
-4. Open **http://localhost:8080** in your browser.
+ResumePolish uses Google Gemini AI, which is **free**:
+
+1. Click **Google AI Studio** in the app (or go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey))
+2. Sign in with a Google account
+3. Click **Create API key**
+4. Paste the key into the app and click **Save**
+
+The key is stored locally on your machine. It never leaves your computer except when calling the Gemini API directly.
+
+## How to Use
+
+1. **Upload** a `.docx` or `.pdf` resume, or paste text directly
+2. Fill in **Target Job** and optionally **Keywords** for ATS
+3. Choose **Output Language** (Hebrew / English) and **Intensity**
+4. Click **Improve with AI** — takes ~10–30 seconds
+5. Review the preview, then **Download DOCX** or **Download PDF**
+   - A Save dialog lets you choose where to save
+   - The file opens automatically after saving
 
 ## Architecture
 
 ```
-┌─────────────┐     /api/*      ┌──────────────┐    Gemini API    ┌──────────┐
-│  Frontend    │ ──────────────► │   Backend    │ ───────────────► │  Google  │
-│  React+Vite  │  nginx proxy    │  Express+TS  │                  │  Gemini  │
-│  :8080       │                 │  :3001       │                  │  (cloud) │
-└─────────────┘                 └──────────────┘                  └──────────┘
-                                 │ LibreOffice
-                                 │ (DOCX→PDF)
+┌──────────────────────────────────────────────┐
+│              ResumePolish (Tauri)             │
+│                                               │
+│  React + TypeScript UI                        │
+│  ├── mammoth       (DOCX extraction)          │
+│  ├── pdfjs-dist    (PDF extraction)           │
+│  ├── @google/generative-ai  (Gemini API)      │
+│  ├── docxtemplater (DOCX generation)          │
+│  └── @react-pdf/renderer    (PDF generation)  │
+│                                               │
+│  Tauri (Rust shell)                           │
+│  ├── tauri-plugin-store  (API key storage)    │
+│  ├── tauri-plugin-http   (CORS bypass)        │
+│  ├── tauri-plugin-dialog (Save file dialog)   │
+│  ├── tauri-plugin-fs     (Write files)        │
+│  └── tauri-plugin-opener (Open saved files)   │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼ HTTPS
+              Google Gemini API
 ```
 
-- **Frontend**: React + TypeScript + Vite, served via nginx
-- **Backend**: Node.js + Express + TypeScript
-- **AI**: Google Gemini 2.0 Flash (excellent Hebrew support, free tier)
-- **PDF conversion**: LibreOffice headless in the backend container
+Everything runs locally. The only network call is to the Gemini API.
 
-## Supported Inputs
+## Supported Input Formats
 
 | Format | Support |
 |--------|---------|
-| `.docx` | Full text extraction via mammoth |
-| `.pdf` (text-based) | Text extraction via pdfjs-dist |
-| `.pdf` (scanned/image) | **Not supported** — upload DOCX or paste text |
+| `.docx` | Full extraction via mammoth |
+| `.pdf` (text-based) | Extraction via pdfjs-dist |
+| `.pdf` (scanned/image) | Not supported — upload DOCX or paste text |
 | Paste text | Paste directly into the text area |
 
-## Development (without Docker)
+## Custom Word Templates
 
-```bash
-# Backend
-cd backend && npm install
-GEMINI_API_KEY=your_key npm run dev
-
-# Frontend (separate terminal)
-cd frontend && npm install && npm run dev
-```
-
-Frontend dev server runs at http://localhost:5173 with API proxy to http://localhost:3001.
-
-## How to Create a Word Template
-
-Create a `.docx` file in Microsoft Word with placeholder tags. Style and format however you like — the placeholders get replaced with resume data.
-
-### Full Example Template
-
-```
-{{name}}
-{{title}}
-
-PROFESSIONAL SUMMARY
-{{summary}}
-
-EXPERIENCE
-{{#experience}}
-{{role}} – {{company}} ({{dates}})
-{{#bullets}}
-• {{.}}
-{{/bullets}}
-{{/experience}}
-
-PROJECTS
-{{#projects}}
-{{name}} ({{dates}})
-{{#bullets}}
-• {{.}}
-{{/bullets}}
-{{/projects}}
-
-EDUCATION
-{{#education}}
-{{degree}} – {{institution}} ({{dates}})
-{{/education}}
-
-SKILLS
-{{#skills}}
-• {{.}}
-{{/skills}}
-```
+Upload your own `.docx` template with placeholder tags — the app will fill them in with the AI-improved resume data.
 
 ### Placeholder Reference
 
 | Placeholder | Description |
 |-------------|-------------|
-| `{{name}}` | Full name |
-| `{{title}}` | Professional title |
-| `{{summary}}` | Professional summary paragraph |
-| `{{#experience}}...{{/experience}}` | Loop over work experience entries |
-| `{{role}}`, `{{company}}`, `{{dates}}` | Inside experience loop |
-| `{{#bullets}}{{.}}{{/bullets}}` | Bullet points in each experience/project |
-| `{{#projects}}...{{/projects}}` | Loop over project entries |
-| `{{#education}}...{{/education}}` | Loop over education entries |
-| `{{degree}}`, `{{institution}}`, `{{dates}}` | Inside education loop |
-| `{{#skills}}{{.}}{{/skills}}` | Loop over skills list |
-| `{{#notes}}{{.}}{{/notes}}` | (Optional) Loop over AI notes |
+| `{name}` | Full name |
+| `{title}` | Professional title |
+| `{summary}` | Professional summary |
+| `{phone}`, `{email}`, `{linkedin}` | Contact info |
+| `{#experience}...{/experience}` | Loop over work experience |
+| `{role}`, `{company}`, `{dates}` | Inside experience loop |
+| `{#bullets}{.}{/bullets}` | Bullet points |
+| `{#projects}...{/projects}` | Loop over projects |
+| `{#education}...{/education}` | Loop over education |
+| `{degree}`, `{institution}` | Inside education loop |
+| `{#skills}{.}{/skills}` | Skills list |
+| `{#languages}{.}{/languages}` | Languages list |
+| `{#military_service}...{/military_service}` | Optional military service section |
 
-### Tips
+## Development
 
-- Format the template with fonts, colors, and spacing — only placeholder text gets replaced.
-- Use Word's bullet list formatting inside loops for nice output.
-- Keep placeholder names exactly as shown (case-sensitive).
+**Prerequisites:** [Rust](https://rustup.rs/), [Node.js](https://nodejs.org/), [Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+
+```bash
+cd frontend
+npm install
+npm run tauri:dev
+```
+
+**Build installer:**
+```bash
+cd frontend
+npm run tauri:build
+# Output: src-tauri/target/release/bundle/nsis/ResumePolish_x64-setup.exe
+```
+
+> **Note:** If the project is inside Dropbox, build output is redirected to `C:\Users\<you>\.cargo\target\resumepolish` to avoid Dropbox file-lock conflicts (configured in `src-tauri/.cargo/config.toml`).
